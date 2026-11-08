@@ -4,11 +4,12 @@ import { Search, Heart, Copy, Share2, Filter } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { galleryWishes, categories } from '../data/wishes'
 import { copyToClipboard, shareOnWhatsApp } from '../utils/helpers'
+import { useLanguage } from '../context/LanguageContext'
 
 const TONE_FILTERS = ['all', 'emotional', 'funny', 'romantic', 'professional', 'traditional']
 const LANG_FILTERS = ['all', 'english', 'hindi', 'hinglish']
 
-function WishCard({ wish, isFavorite, onFavorite }) {
+function WishCard({ wish, isFavorite, onFavorite, t: _t }) {
   const categoryInfo = categories.find(c => c.id === wish.category)
 
   const handleCopy = async () => {
@@ -80,6 +81,7 @@ function WishCard({ wish, isFavorite, onFavorite }) {
 }
 
 export default function Gallery() {
+  const { t } = useLanguage()
   const [search, setSearch] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('all')
   const [selectedTone, setSelectedTone] = useState('all')
@@ -123,10 +125,10 @@ export default function Gallery() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <div className="text-5xl mb-4">🖼️</div>
           <h1 className="font-display font-black text-4xl sm:text-5xl text-gradient-gold mb-3">
-            Wishes Gallery
+            {t('gallery.title')}
           </h1>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            Browse our curated collection of Diwali wishes — copy, share, or save your favorites.
+            {t('gallery.subtitle')}
           </p>
         </motion.div>
 
@@ -137,7 +139,7 @@ export default function Gallery() {
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40" />
               <input
                 type="text"
-                placeholder="Search wishes..."
+                placeholder={t('gallery.searchPlaceholder')}
                 value={search}
                 onChange={e => setSearch(e.target.value)}
                 className="w-full pl-9 pr-4 py-3 rounded-xl glass border border-white/10 bg-transparent text-white placeholder-white/30 focus:outline-none focus:border-diwali-gold/50 text-sm"
@@ -148,7 +150,7 @@ export default function Gallery() {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all text-sm font-medium ${showFilters ? 'btn-gold' : 'btn-glass'}`}
             >
               <Filter size={14} />
-              <span className="hidden sm:inline">Filters</span>
+              <span className="hidden sm:inline">{t('gallery.filters')}</span>
             </button>
             <button
               onClick={() => setShowFavsOnly(f => !f)}
@@ -169,9 +171,9 @@ export default function Gallery() {
               >
                 {/* Category */}
                 <div>
-                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">Category:</span>
+                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">{t('gallery.category')}</span>
                   <div className="inline-flex flex-wrap gap-2 mt-1">
-                    {[{ id: 'all', label: '🌟 All', emoji: '' }, ...categories].map(c => (
+                    {[{ id: 'all', label: t('gallery.all'), emoji: '' }, ...categories].map(c => (
                       <button
                         key={c.id}
                         onClick={() => setSelectedCategory(c.id)}
@@ -188,17 +190,17 @@ export default function Gallery() {
 
                 {/* Tone */}
                 <div>
-                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">Tone:</span>
+                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">{t('gallery.tone')}</span>
                   <div className="inline-flex flex-wrap gap-2 mt-1">
-                    {TONE_FILTERS.map(t => (
+                    {TONE_FILTERS.map(toneId => (
                       <button
-                        key={t}
-                        onClick={() => setSelectedTone(t)}
+                        key={toneId}
+                        onClick={() => setSelectedTone(toneId)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-medium capitalize transition-all ${
-                          selectedTone === t ? 'btn-gold' : 'glass border border-white/10 text-white/60 hover:text-white'
+                          selectedTone === toneId ? 'btn-gold' : 'glass border border-white/10 text-white/60 hover:text-white'
                         }`}
                       >
-                        {t === 'all' ? '🌟 All' : t}
+                        {toneId === 'all' ? t('gallery.all') : toneId}
                       </button>
                     ))}
                   </div>
@@ -206,7 +208,7 @@ export default function Gallery() {
 
                 {/* Language */}
                 <div>
-                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">Language:</span>
+                  <span className="text-xs text-diwali-gold/60 uppercase tracking-wider mr-3">{t('gallery.language')}</span>
                   <div className="inline-flex flex-wrap gap-2 mt-1">
                     {LANG_FILTERS.map(l => (
                       <button
@@ -216,7 +218,7 @@ export default function Gallery() {
                           selectedLang === l ? 'btn-gold' : 'glass border border-white/10 text-white/60 hover:text-white'
                         }`}
                       >
-                        {l === 'all' ? '🌐 All' : l}
+                        {l === 'all' ? t('gallery.all') : l}
                       </button>
                     ))}
                   </div>
@@ -229,10 +231,10 @@ export default function Gallery() {
         {/* Result count */}
         <div className="text-white/40 text-sm mb-6 flex items-center gap-2">
           <span className="text-diwali-gold font-semibold text-base">{filtered.length}</span>
-          wishes found
+          {t('gallery.wishesFound')}
           {favorites.size > 0 && (
             <span className="text-xs bg-red-500/10 border border-red-400/20 text-red-400 px-2 py-0.5 rounded-full ml-2">
-              ❤️ {favorites.size} saved
+              ❤️ {favorites.size} {t('gallery.saved')}
             </span>
           )}
         </div>
@@ -250,6 +252,7 @@ export default function Gallery() {
                   wish={wish}
                   isFavorite={favorites.has(wish.id)}
                   onFavorite={toggleFavorite}
+                  t={t}
                 />
               ))}
             </motion.div>
@@ -260,13 +263,13 @@ export default function Gallery() {
               className="text-center py-24 text-white/40"
             >
               <div className="text-6xl mb-4">🔍</div>
-              <p className="text-lg font-medium">No wishes found</p>
-              <p className="text-sm mt-2">Try adjusting your filters or search term</p>
+              <p className="text-lg font-medium">{t('gallery.noWishes')}</p>
+              <p className="text-sm mt-2">{t('gallery.noWishesSub')}</p>
               <button
                 onClick={() => { setSearch(''); setSelectedCategory('all'); setSelectedTone('all'); setSelectedLang('all'); setShowFavsOnly(false) }}
                 className="mt-4 px-6 py-2 rounded-xl btn-glass text-sm font-medium"
               >
-                Clear Filters
+                {t('gallery.clearFilters')}
               </button>
             </motion.div>
           )}

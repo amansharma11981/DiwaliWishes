@@ -1,21 +1,24 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Menu, X, Sparkles } from 'lucide-react'
-
-const navLinks = [
-  { path: '/', label: 'Home', emoji: '🏠' },
-  { path: '/generate', label: 'AI Wishes', emoji: '✨' },
-  { path: '/card-creator', label: 'Cards', emoji: '🎨' },
-  { path: '/gallery', label: 'Gallery', emoji: '🖼️' },
-  { path: '/experience', label: 'Experience', emoji: '🪔' },
-  { path: '/about', label: 'About Diwali', emoji: '📖' },
-]
+import { Menu, X, Sparkles, Globe } from 'lucide-react'
+import { useLanguage } from '../../context/LanguageContext'
+import toast from 'react-hot-toast'
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false)
   const [mobileOpen, setMobileOpen] = useState(false)
   const location = useLocation()
+  const { lang: _lang, toggleLang, isHindi, t } = useLanguage()
+
+  const navLinks = [
+    { path: '/', label: t('nav.home'), emoji: '🏠' },
+    { path: '/generate', label: t('nav.aiWishes'), emoji: '✨' },
+    { path: '/card-creator', label: t('nav.cardCreator'), emoji: '🎨' },
+    { path: '/gallery', label: t('nav.gallery'), emoji: '🖼️' },
+    { path: '/experience', label: t('nav.experience'), emoji: '🪔' },
+    { path: '/about', label: t('nav.about'), emoji: '📖' },
+  ]
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20)
@@ -23,9 +26,14 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
 
-  useEffect(() => {
-    setMobileOpen(false)
-  }, [location])
+  const handleLangToggle = () => {
+    toggleLang()
+    if (isHindi) {
+      toast('Language switched to English 🇬🇧', { icon: '🌐' })
+    } else {
+      toast('भाषा बदलकर हिंदी कर दी गई 🇮🇳', { icon: '🪔' })
+    }
+  }
 
   return (
     <motion.nav
@@ -48,7 +56,9 @@ export default function Navbar() {
             </div>
             <div>
               <span className="font-display font-bold text-xl text-gradient-gold">DiwaliWish</span>
-              <span className="hidden sm:block text-xs text-diwali-gold/60 leading-none ml-0.5">Festival of Lights</span>
+              <span className="hidden sm:block text-xs text-diwali-gold/60 leading-none ml-0.5">
+                {t('nav.subtitle')}
+              </span>
             </div>
           </Link>
 
@@ -81,15 +91,27 @@ export default function Navbar() {
             })}
           </div>
 
-          {/* CTA + Mobile toggle */}
-          <div className="flex items-center gap-3">
+          {/* CTA + Language Selector + Mobile toggle */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Language Switcher Pill */}
+            <button
+              onClick={handleLangToggle}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full glass border border-diwali-gold/30 hover:border-diwali-gold hover:glass-gold text-xs font-semibold text-diwali-gold transition-all shadow-sm"
+              title={isHindi ? 'Switch to English' : 'हिंदी में बदलें'}
+              aria-label="Toggle UI Language"
+            >
+              <Globe size={13} className="text-diwali-gold/80" />
+              <span>{isHindi ? 'English 🇬🇧' : 'हिंदी 🇮🇳'}</span>
+            </button>
+
             <Link
               to="/generate"
               className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-full btn-gold text-sm font-semibold"
             >
               <Sparkles size={14} />
-              Generate Wishes
+              {t('nav.generateBtn')}
             </Link>
+
             <button
               className="md:hidden p-2 rounded-lg glass text-diwali-gold"
               onClick={() => setMobileOpen(!mobileOpen)}
@@ -118,6 +140,7 @@ export default function Navbar() {
                   <Link
                     key={path}
                     to={path}
+                    onClick={() => setMobileOpen(false)}
                     className={`flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${
                       isActive
                         ? 'glass-gold text-diwali-gold'
@@ -129,13 +152,21 @@ export default function Navbar() {
                   </Link>
                 )
               })}
-              <div className="pt-2 border-t border-diwali-gold/10">
+              <div className="pt-2 border-t border-diwali-gold/10 flex flex-col gap-2">
+                <button
+                  onClick={handleLangToggle}
+                  className="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl glass border border-diwali-gold/30 text-diwali-gold font-semibold text-sm"
+                >
+                  <Globe size={15} />
+                  <span>{isHindi ? 'Switch to English 🇬🇧' : 'हिंदी में बदलें 🇮🇳'}</span>
+                </button>
                 <Link
                   to="/generate"
+                  onClick={() => setMobileOpen(false)}
                   className="flex items-center justify-center gap-2 w-full px-4 py-3 rounded-xl btn-gold font-semibold"
                 >
                   <Sparkles size={16} />
-                  Generate AI Wishes
+                  {t('nav.generateBtn')}
                 </Link>
               </div>
             </div>

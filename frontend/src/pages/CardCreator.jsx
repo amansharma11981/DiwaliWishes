@@ -5,6 +5,7 @@ import toast from 'react-hot-toast'
 import { toPng } from 'html-to-image'
 import { cardTemplates, fontOptions, colorSchemes } from '../data/templates'
 import { shareOnWhatsApp } from '../utils/helpers'
+import { useLanguage } from '../context/LanguageContext'
 
 const DEFAULT_CARD = {
   recipientName: 'Dear Friend',
@@ -14,16 +15,16 @@ const DEFAULT_CARD = {
   accentColor: colorSchemes[0],
 }
 
-function CardPreview({ card, previewRef }) {
-  const t = card.template
+function CardPreview({ card, previewRef, t }) {
+  const tmpl = card.template
   return (
     <div
       ref={previewRef}
       className="relative w-full overflow-hidden"
       style={{
         aspectRatio: '4/3',
-        background: t.bg,
-        border: t.border,
+        background: tmpl.bg,
+        border: tmpl.border,
         borderRadius: '20px',
         fontFamily: card.font.family,
         minHeight: '300px',
@@ -50,42 +51,42 @@ function CardPreview({ card, previewRef }) {
       {/* Mandala corner decorations */}
       <div className="absolute top-2 left-2 w-16 h-16 opacity-10">
         <svg viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r="28" fill="none" stroke={t.titleColor} strokeWidth="1"/>
-          <circle cx="30" cy="30" r="18" fill="none" stroke={t.titleColor} strokeWidth="1"/>
+          <circle cx="30" cy="30" r="28" fill="none" stroke={tmpl.titleColor} strokeWidth="1"/>
+          <circle cx="30" cy="30" r="18" fill="none" stroke={tmpl.titleColor} strokeWidth="1"/>
           {Array.from({length:8}).map((_,i)=>(
-            <line key={i} x1="30" y1="2" x2="30" y2="58" stroke={t.titleColor} strokeWidth="0.5" transform={`rotate(${i*22.5} 30 30)`}/>
+            <line key={i} x1="30" y1="2" x2="30" y2="58" stroke={tmpl.titleColor} strokeWidth="0.5" transform={`rotate(${i*22.5} 30 30)`}/>
           ))}
         </svg>
       </div>
       <div className="absolute top-2 right-2 w-16 h-16 opacity-10" style={{transform:'scaleX(-1)'}}>
         <svg viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r="28" fill="none" stroke={t.titleColor} strokeWidth="1"/>
-          <circle cx="30" cy="30" r="18" fill="none" stroke={t.titleColor} strokeWidth="1"/>
+          <circle cx="30" cy="30" r="28" fill="none" stroke={tmpl.titleColor} strokeWidth="1"/>
+          <circle cx="30" cy="30" r="18" fill="none" stroke={tmpl.titleColor} strokeWidth="1"/>
           {Array.from({length:8}).map((_,i)=>(
-            <line key={i} x1="30" y1="2" x2="30" y2="58" stroke={t.titleColor} strokeWidth="0.5" transform={`rotate(${i*22.5} 30 30)`}/>
+            <line key={i} x1="30" y1="2" x2="30" y2="58" stroke={tmpl.titleColor} strokeWidth="0.5" transform={`rotate(${i*22.5} 30 30)`}/>
           ))}
         </svg>
       </div>
 
       {/* Main content */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full px-6 sm:px-10 py-12 text-center gap-3">
-        <div className="text-3xl animate-bounce-gentle">{t.emoji.split('')[0]}</div>
+        <div className="text-3xl animate-bounce-gentle">{tmpl.emoji.split('')[0]}</div>
 
         <div>
-          <p className="text-xs uppercase tracking-[0.3em] mb-1 opacity-60" style={{ color: t.accentColor }}>
-            🌸 Shubh Deepavali 🌸
+          <p className="text-xs uppercase tracking-[0.3em] mb-1 opacity-60" style={{ color: tmpl.accentColor }}>
+            {t('cards.shubhDeepavali')}
           </p>
           <h2
             className="font-bold text-xl sm:text-3xl leading-tight"
-            style={{ color: t.titleColor, fontFamily: card.font.family, textShadow: `0 0 20px ${t.titleColor}44` }}
+            style={{ color: tmpl.titleColor, fontFamily: card.font.family, textShadow: `0 0 20px ${tmpl.titleColor}44` }}
           >
-            Dear {card.recipientName || 'Friend'}
+            {t('cards.dear')} {card.recipientName || 'Friend'}
           </h2>
         </div>
 
         <p
           className="text-sm sm:text-base leading-relaxed max-w-sm"
-          style={{ color: t.textColor, fontFamily: card.font.family, opacity: 0.9 }}
+          style={{ color: tmpl.textColor, fontFamily: card.font.family, opacity: 0.9 }}
         >
           {card.message}
         </p>
@@ -94,7 +95,7 @@ function CardPreview({ card, previewRef }) {
           className="text-xs font-semibold tracking-wider uppercase mt-2 px-4 py-1 rounded-full"
           style={{ background: `${card.accentColor.accent}22`, color: card.accentColor.accent, border: `1px solid ${card.accentColor.accent}44` }}
         >
-          Happy Diwali 2026 ✨
+          {t('cards.happyDiwali')}
         </div>
       </div>
 
@@ -106,9 +107,9 @@ function CardPreview({ card, previewRef }) {
       {/* Rangoli bottom corners */}
       <div className="absolute bottom-2 left-2 w-12 h-12 opacity-10" style={{transform:'rotate(180deg)'}}>
         <svg viewBox="0 0 60 60">
-          <circle cx="30" cy="30" r="28" fill="none" stroke={t.accentColor} strokeWidth="1"/>
+          <circle cx="30" cy="30" r="28" fill="none" stroke={tmpl.accentColor} strokeWidth="1"/>
           {Array.from({length:6}).map((_,i)=>(
-            <ellipse key={i} cx="30" cy="10" rx="5" ry="10" fill={t.accentColor} transform={`rotate(${i*60} 30 30)`}/>
+            <ellipse key={i} cx="30" cy="10" rx="5" ry="10" fill={tmpl.accentColor} transform={`rotate(${i*60} 30 30)`}/>
           ))}
         </svg>
       </div>
@@ -117,6 +118,7 @@ function CardPreview({ card, previewRef }) {
 }
 
 export default function CardCreator() {
+  const { t } = useLanguage()
   const [card, setCard] = useState(DEFAULT_CARD)
   const [activeTab, setActiveTab] = useState('template')
   const [downloading, setDownloading] = useState(false)
@@ -151,10 +153,10 @@ export default function CardCreator() {
   }
 
   const tabs = [
-    { id: 'template', label: 'Templates', icon: Palette },
-    { id: 'text', label: 'Text', icon: Type },
-    { id: 'colors', label: 'Colors', icon: MessageSquare },
-    { id: 'font', label: 'Font', icon: Type },
+    { id: 'template', label: t('cards.tabTemplate'), icon: Palette },
+    { id: 'text', label: t('cards.tabText'), icon: Type },
+    { id: 'colors', label: t('cards.tabColors'), icon: MessageSquare },
+    { id: 'font', label: t('cards.tabFont'), icon: Type },
   ]
 
   return (
@@ -164,10 +166,10 @@ export default function CardCreator() {
         <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-center mb-10">
           <div className="text-5xl mb-4">🎨</div>
           <h1 className="font-display font-black text-4xl sm:text-5xl text-gradient-gold mb-3">
-            Greeting Card Creator
+            {t('cards.title')}
           </h1>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            Design a beautiful Diwali greeting card with festive templates, custom messages, and stunning visuals.
+            {t('cards.subtitle')}
           </p>
         </motion.div>
 
@@ -197,22 +199,24 @@ export default function CardCreator() {
               {/* Template Selection */}
               {activeTab === 'template' && (
                 <div className="space-y-3">
-                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">Choose Template</h3>
+                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">
+                    {t('cards.chooseTemplate')}
+                  </h3>
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                    {cardTemplates.map((t) => (
+                    {cardTemplates.map((tmpl) => (
                       <button
-                        key={t.id}
-                        onClick={() => update('template', t)}
+                        key={tmpl.id}
+                        onClick={() => update('template', tmpl)}
                         className={`relative p-4 rounded-xl transition-all ${
-                          card.template.id === t.id
+                          card.template.id === tmpl.id
                             ? 'ring-2 ring-diwali-gold shadow-gold'
                             : 'glass border border-white/10 hover:border-diwali-gold/30'
                         }`}
-                        style={{ background: t.bg }}
+                        style={{ background: tmpl.bg }}
                       >
-                        <div className="text-2xl mb-1">{t.preview}</div>
-                        <div className="text-xs font-medium" style={{ color: t.titleColor }}>{t.name}</div>
-                        {card.template.id === t.id && (
+                        <div className="text-2xl mb-1">{tmpl.preview}</div>
+                        <div className="text-xs font-medium" style={{ color: tmpl.titleColor }}>{tmpl.name}</div>
+                        {card.template.id === tmpl.id && (
                           <div className="absolute top-1 right-1 w-4 h-4 bg-diwali-gold rounded-full flex items-center justify-center">
                             <span className="text-xs text-diwali-blue font-bold">✓</span>
                           </div>
@@ -226,9 +230,11 @@ export default function CardCreator() {
               {/* Text Editing */}
               {activeTab === 'text' && (
                 <div className="space-y-4">
-                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">Edit Text</h3>
+                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">
+                    {t('cards.editText')}
+                  </h3>
                   <div>
-                    <label className="block text-xs text-white/60 mb-2">Recipient Name</label>
+                    <label className="block text-xs text-white/60 mb-2">{t('cards.recipientName')}</label>
                     <input
                       type="text"
                       value={card.recipientName}
@@ -238,7 +244,7 @@ export default function CardCreator() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs text-white/60 mb-2">Message</label>
+                    <label className="block text-xs text-white/60 mb-2">{t('cards.message')}</label>
                     <textarea
                       value={card.message}
                       onChange={e => update('message', e.target.value)}
@@ -252,7 +258,7 @@ export default function CardCreator() {
                     onClick={() => update('message', DEFAULT_CARD.message)}
                     className="text-xs text-diwali-gold/60 hover:text-diwali-gold flex items-center gap-1 transition-colors"
                   >
-                    <RefreshCw size={10} /> Reset to default
+                    <RefreshCw size={10} /> {t('cards.resetDefault')}
                   </button>
                 </div>
               )}
@@ -260,7 +266,9 @@ export default function CardCreator() {
               {/* Color Scheme */}
               {activeTab === 'colors' && (
                 <div>
-                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">Accent Color</h3>
+                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">
+                    {t('cards.accentColor')}
+                  </h3>
                   <div className="flex flex-wrap gap-3">
                     {colorSchemes.map((c) => (
                       <button
@@ -280,7 +288,9 @@ export default function CardCreator() {
               {/* Font Selection */}
               {activeTab === 'font' && (
                 <div>
-                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">Choose Font</h3>
+                  <h3 className="text-diwali-gold font-semibold text-sm uppercase tracking-wider mb-4">
+                    {t('cards.chooseFont')}
+                  </h3>
                   <div className="space-y-2">
                     {fontOptions.map((f) => (
                       <button
@@ -310,14 +320,14 @@ export default function CardCreator() {
                 className="flex-1 flex items-center justify-center gap-2 py-3 rounded-xl btn-gold font-semibold text-sm"
               >
                 <Download size={16} />
-                {downloading ? 'Saving...' : 'Download PNG'}
+                {downloading ? 'Saving...' : t('cards.downloadPNG')}
               </button>
               <button
                 onClick={handleShare}
                 className="flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-green-600/20 border border-green-500/30 text-green-400 font-semibold text-sm hover:bg-green-600/40 transition-all"
               >
                 <Share2 size={16} />
-                WhatsApp
+                {t('cards.shareWhatsApp')}
               </button>
             </div>
           </motion.div>
@@ -326,11 +336,11 @@ export default function CardCreator() {
           <motion.div initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}>
             <div className="sticky top-24">
               <h3 className="text-diwali-gold/80 text-sm font-semibold uppercase tracking-wider mb-4 flex items-center gap-2">
-                <span>🖼️</span> Live Preview
+                <span>🖼️</span> {t('cards.livePreview')}
               </h3>
-              <CardPreview card={card} previewRef={previewRef} />
+              <CardPreview card={card} previewRef={previewRef} t={t} />
               <p className="text-center text-white/30 text-xs mt-3">
-                Changes reflect in real-time · High-quality PNG export
+                {t('cards.footerNote')}
               </p>
             </div>
           </motion.div>

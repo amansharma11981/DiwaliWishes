@@ -6,6 +6,7 @@ import { aiService } from '../services/api'
 import { galleryWishes } from '../data/wishes'
 import { copyToClipboard, shareOnWhatsApp } from '../utils/helpers'
 import { toPng } from 'html-to-image'
+import { useLanguage } from '../context/LanguageContext'
 
 const OPTIONS = {
   recipient: ['friends', 'family', 'parents', 'partner', 'colleagues', 'teacher'],
@@ -14,14 +15,7 @@ const OPTIONS = {
   length: ['short', 'medium', 'long'],
 }
 
-const LABELS = {
-  recipient: { friends: '👫 Friends', family: '👨‍👩‍👧‍👦 Family', parents: '🙏 Parents', partner: '❤️ Partner', colleagues: '💼 Colleagues', teacher: '📚 Teacher' },
-  language: { english: '🇬🇧 English', hindi: '🇮🇳 Hindi', hinglish: '🌟 Hinglish', sanskrit: '🕉️ Sanskrit-inspired' },
-  tone: { emotional: '💖 Emotional', funny: '😄 Funny', romantic: '🌹 Romantic', professional: '💼 Professional', traditional: '🙏 Traditional' },
-  length: { short: '📝 Short', medium: '📄 Medium', long: '📃 Long' },
-}
-
-function SelectGroup({ label, field, value, onChange }) {
+function SelectGroup({ label, field, value, onChange, t }) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-semibold text-diwali-gold/80 uppercase tracking-wider">{label}</label>
@@ -36,7 +30,7 @@ function SelectGroup({ label, field, value, onChange }) {
                 : 'glass border border-white/10 text-white/70 hover:border-diwali-gold/30 hover:text-white'
             }`}
           >
-            {LABELS[field][opt]}
+            {t(`generator.${field === 'recipient' ? 'recipients' : field === 'language' ? 'languages' : field === 'tone' ? 'tones' : 'lengths'}.${opt}`)}
           </button>
         ))}
       </div>
@@ -44,12 +38,12 @@ function SelectGroup({ label, field, value, onChange }) {
   )
 }
 
-function WishCard({ wish, index }) {
+function WishCard({ wish, index, t }) {
   const [downloaded, setDownloaded] = useState(false)
 
   const handleCopy = async () => {
     await copyToClipboard(wish.text)
-    toast.success('Wish copied to clipboard! 🪔')
+    toast.success(t('generator.copied'))
   }
 
   const handleShare = () => {
@@ -96,13 +90,13 @@ function WishCard({ wish, index }) {
       </div>
       <div className="px-6 py-4 border-t border-diwali-gold/10 flex items-center gap-2">
         <button onClick={handleCopy} className="flex items-center gap-1.5 px-3 py-2 rounded-lg glass-gold text-diwali-gold text-xs font-medium hover:shadow-gold transition-all">
-          <Copy size={12} /> Copy
+          <Copy size={12} /> {t('generator.copy')}
         </button>
         <button onClick={handleShare} className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-green-600/20 border border-green-500/30 text-green-400 text-xs font-medium hover:bg-green-600/40 transition-all">
-          <Share2 size={12} /> WhatsApp
+          <Share2 size={12} /> {t('generator.whatsapp')}
         </button>
         <button onClick={handleDownload} className="flex items-center gap-1.5 px-3 py-2 rounded-lg glass border border-white/10 text-white/60 text-xs font-medium hover:text-white transition-all ml-auto">
-          <Download size={12} /> {downloaded ? 'Saving...' : 'Save'}
+          <Download size={12} /> {downloaded ? 'Saving...' : t('generator.download')}
         </button>
       </div>
     </motion.div>
@@ -110,6 +104,7 @@ function WishCard({ wish, index }) {
 }
 
 export default function AIGenerator() {
+  const { t } = useLanguage()
   const [form, setForm] = useState({
     recipient: 'family',
     language: 'english',
@@ -147,7 +142,6 @@ export default function AIGenerator() {
   }
 
   const getFallbackWishes = useCallback(() => {
-    // Pick from gallery wishes matching the category
     const matches = galleryWishes.filter(w =>
       w.category === form.recipient &&
       (form.language === 'english' ? w.language === 'english' : w.language === form.language)
@@ -180,7 +174,6 @@ export default function AIGenerator() {
       }
       toast.success(`${form.count} wishes generated! 🎆`)
     } catch {
-      // Backend not running or error — use frontend fallback
       const fb = getFallbackWishes()
       setWishes(fb)
       setUsedFallback(true)
@@ -201,10 +194,10 @@ export default function AIGenerator() {
         >
           <div className="text-5xl mb-4">✨</div>
           <h1 className="font-display font-black text-4xl sm:text-5xl text-gradient-gold mb-3">
-            AI Wishes Generator
+            {t('generator.title')}
           </h1>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            Craft personalized Diwali greetings powered by Google Gemini AI — in multiple languages, tones, and styles.
+            {t('generator.subtitle')}
           </p>
         </motion.div>
 
@@ -215,19 +208,19 @@ export default function AIGenerator() {
           transition={{ delay: 0.2 }}
           className="glass rounded-3xl p-6 sm:p-8 space-y-6 mb-8"
         >
-          <SelectGroup label="Who is it for?" field="recipient" value={form.recipient} onChange={handleChange} />
-          <SelectGroup label="Language" field="language" value={form.language} onChange={handleChange} />
-          <SelectGroup label="Tone" field="tone" value={form.tone} onChange={handleChange} />
-          <SelectGroup label="Length" field="length" value={form.length} onChange={handleChange} />
+          <SelectGroup label={t('generator.forWhom')} field="recipient" value={form.recipient} onChange={handleChange} t={t} />
+          <SelectGroup label={t('generator.language')} field="language" value={form.language} onChange={handleChange} t={t} />
+          <SelectGroup label={t('generator.tone')} field="tone" value={form.tone} onChange={handleChange} t={t} />
+          <SelectGroup label={t('generator.length')} field="length" value={form.length} onChange={handleChange} t={t} />
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-diwali-gold/80 uppercase tracking-wider">
-                Recipient's Name <span className="text-white/30 font-normal normal-case">(optional)</span>
+                {t('generator.nameLabel')} <span className="text-white/30 font-normal normal-case">{t('generator.optional')}</span>
               </label>
               <input
                 type="text"
-                placeholder="e.g. Priya, Mom, Rahul..."
+                placeholder={t('generator.namePlaceholder')}
                 value={form.name}
                 onChange={e => handleChange('name', e.target.value)}
                 className="w-full px-4 py-3 rounded-xl glass border border-white/10 bg-transparent text-white placeholder-white/30 focus:outline-none focus:border-diwali-gold/50 transition-colors"
@@ -235,7 +228,7 @@ export default function AIGenerator() {
             </div>
             <div className="space-y-2">
               <label className="block text-xs font-semibold text-diwali-gold/80 uppercase tracking-wider">
-                Number of Variations
+                {t('generator.variations')}
               </label>
               <div className="flex items-center gap-3">
                 <input
@@ -261,12 +254,12 @@ export default function AIGenerator() {
                   <div className="loading-dots flex gap-1">
                     <span /><span /><span />
                   </div>
-                  Generating magic...
+                  {t('generator.generating')}
                 </>
               ) : (
                 <>
                   <Sparkles size={18} />
-                  Generate Wishes
+                  {t('generator.generateBtn')}
                 </>
               )}
             </button>
@@ -277,7 +270,7 @@ export default function AIGenerator() {
                 className="flex items-center justify-center gap-2 px-6 py-4 rounded-2xl btn-glass font-semibold"
               >
                 <RefreshCw size={16} />
-                Regenerate
+                {t('generator.regenerate')}
               </button>
             )}
           </div>
@@ -290,7 +283,7 @@ export default function AIGenerator() {
             animate={{ opacity: 1 }}
             className="mb-6 px-4 py-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300/80 text-sm flex items-center gap-2"
           >
-            📚 Showing curated wishes — connect the backend with a Gemini API key for AI-generated wishes!
+            {t('generator.fallbackNotice')}
           </motion.div>
         )}
 
@@ -305,10 +298,10 @@ export default function AIGenerator() {
             >
               <h2 className="font-display text-xl font-bold text-diwali-gold flex items-center gap-2">
                 <Sparkles size={18} />
-                Your Personalized Wishes
+                {t('generator.resultsTitle')}
               </h2>
               {wishes.map((wish, i) => (
-                <WishCard key={wish.id || i} wish={wish} index={i} />
+                <WishCard key={wish.id || i} wish={wish} index={i} t={t} />
               ))}
             </motion.div>
           )}
@@ -322,8 +315,8 @@ export default function AIGenerator() {
             className="text-center py-16 text-white/40"
           >
             <div className="text-6xl mb-4">🪔</div>
-            <p className="text-lg">Configure your options above and click <strong className="text-diwali-gold">Generate Wishes</strong></p>
-            <p className="text-sm mt-2">AI will craft personalized Diwali greetings just for you</p>
+            <p className="text-lg">{t('generator.emptyTitle')} <strong className="text-diwali-gold">{t('generator.generateBtn')}</strong></p>
+            <p className="text-sm mt-2">{t('generator.emptySub')}</p>
           </motion.div>
         )}
       </div>
