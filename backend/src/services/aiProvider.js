@@ -51,6 +51,6 @@ export async function generateWishes(params) {
   }
 
   // ── 3. Hardcoded fallback ──────────────────────────────────────────────────
-  console.warn('[aiProvider] All AI providers unavailable — using fallback wishes.');
+  console.log('[aiProvider] All AI providers unavailable — using fallback wishes.');
   return generateFallback(params);
 }

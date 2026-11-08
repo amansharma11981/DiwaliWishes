@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Sparkles, Calendar, BookOpen, Heart, Flame, Shield, Sun, Moon } from 'lucide-react'
+import { Sparkles, Calendar, Heart, Flame, Shield, Sun } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
 const FIVE_DAYS = [

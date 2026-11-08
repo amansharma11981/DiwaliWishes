@@ -121,7 +121,7 @@ function DiyaIllustration() {
 }
 
 // ─── Feature Card ────────────────────────────────────────────────────────────
-function FeatureCard({ icon: Icon, title, desc, to, emoji, color, delay }) {
+function FeatureCard({ title, desc, to, emoji, color, delay }) {
   return (
     <motion.div
       initial={{ opacity: 0, y: 40 }}

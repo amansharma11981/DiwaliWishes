@@ -1,0 +1,122 @@
+name: DiwaliWish CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ──────────────────────────────────────────────────────────────────────────
+  # 1. FRONTEND CI: Lint, Typecheck, and Production Bundle Build
+  # ──────────────────────────────────────────────────────────────────────────
+  frontend-ci:
+    name: 🎨 Frontend Verification & Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Check out repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: 📦 Install Frontend Dependencies
+        working-directory: frontend
+        run: npm ci || npm install
+
+      - name: 🔍 Lint Frontend Code
+        working-directory: frontend
+        run: npm run lint
+
+      - name: 🏗️ Build Production Bundle
+        working-directory: frontend
+        run: npm run build
+
+      - name: 📤 Archive Frontend Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist/
+          retention-days: 7
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 2. BACKEND CI: Syntax Verification, Unit Tests & AI Provider Check
+  # ──────────────────────────────────────────────────────────────────────────
+  backend-ci:
+    name: ⚙️ Backend Test Suite & Health
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Check out repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Set up Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json
+
+      - name: 📦 Install Backend Dependencies
+        working-directory: backend
+        run: npm ci || npm install
+
+      - name: 🔬 Verify Node.js Syntax
+        working-directory: backend
+        run: |
+          node --check src/app.js
+          node --check src/routes/ai.js
+          node --check src/routes/wishes.js
+          node --check src/routes/cards.js
+          node --check src/services/aiProvider.js
+
+      - name: 🧪 Run Automated Backend Tests
+        working-directory: backend
+        run: npm test
+
+  # ──────────────────────────────────────────────────────────────────────────
+  # 3. DEPLOY NOTIFICATION / HOOK TRIGGER
+  # ──────────────────────────────────────────────────────────────────────────
+  deploy-pipeline:
+    name: 🚀 Deployment Pipeline & Summary
+    needs: [frontend-ci, backend-ci]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: 📥 Check out repository
+        uses: actions/checkout@v4
+
+      - name: 🔔 Trigger Render Deploy Hook (if configured)
+        if: env.RENDER_DEPLOY_HOOK_URL != ''
+        env:
+          RENDER_DEPLOY_HOOK_URL: ${{ secrets.RENDER_DEPLOY_HOOK_URL }}
+        run: |
+          echo "🚀 Triggering Render auto-deploy webhook..."
+          curl -X POST -s -S -f "$RENDER_DEPLOY_HOOK_URL"
+          echo "✅ Render deployment initiated successfully!"
+
+      - name: 📊 Generate CI/CD Summary
+        run: |
+          echo "## 🪔 DiwaliWish CI/CD Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Check | Status | Details |" >> $GITHUB_STEP_SUMMARY
+          echo "|---|---|---|" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Build** | ✅ Passed | Vite production bundle compiled & archived |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Frontend Lint** | ✅ Passed | Fast static inspection completed |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend Tests** | ✅ Passed | AI Provider & Multilingual Fallback verified |" >> $GITHUB_STEP_SUMMARY
+          echo "| **Backend Syntax** | ✅ Passed | Express routes and middleware verified |" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "✨ **Repository is fully verified and ready for live hosting!**" >> $GITHUB_STEP_SUMMARY
+          echo "- **Frontend Hosting**: Vercel (Auto-deploys from \`main\` branch)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Backend Hosting**: Render (Auto-deploys with \`render.yaml\` blueprint)" >> $GITHUB_STEP_SUMMARY

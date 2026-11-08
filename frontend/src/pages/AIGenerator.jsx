@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Sparkles, RefreshCw, Copy, Share2, Download, ChevronDown } from 'lucide-react'
+import { Sparkles, RefreshCw, Copy, Share2, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { aiService } from '../services/api'
 import { galleryWishes } from '../data/wishes'
@@ -120,7 +120,6 @@ export default function AIGenerator() {
   })
   const [wishes, setWishes] = useState([])
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const [usedFallback, setUsedFallback] = useState(false)
 
   const handleChange = (field, value) => {
@@ -140,7 +139,6 @@ export default function AIGenerator() {
 
   const generate = useCallback(async () => {
     setLoading(true)
-    setError('')
     setWishes([])
     setUsedFallback(false)
     try {
