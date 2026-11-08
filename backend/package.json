@@ -5,9 +5,13 @@
   "type": "module",
   "main": "src/app.js",
   "scripts": {
+    "build": "echo 'Backend build complete'",
     "start": "node src/app.js",
     "dev": "node --watch src/app.js",
     "test": "node src/test.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "express": "^4.21.0",
