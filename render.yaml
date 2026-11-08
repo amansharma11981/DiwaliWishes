@@ -1,0 +1,15 @@
+services:
+  - type: web
+    name: diwaliwish-backend
+    runtime: node
+    rootDir: backend
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: AI_PROVIDER
+        value: fallback
+      - key: FRONTEND_URL
+        value: '*'
