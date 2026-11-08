@@ -103,21 +103,53 @@ const WISHES = {
 // ── Public API ─────────────────────────────────────────────────────────────────
 
 /**
- * Generate wishes from the hardcoded collection.
+ * Generate wishes from the hardcoded collection, adapting to requested length.
  *
  * @param {object} opts
  * @returns {Array<{id:string, text:string, provider:string}>}
  */
-export function generateFallback({ recipient, tone, language, length, count = 3 }) {
+export function generateFallback({ recipient, tone, language, length = 'medium', count = 3 }) {
   const wishes = selectWishes(recipient, tone, language);
   const shuffled = shuffle(wishes);
   const selected = shuffled.slice(0, count);
 
   return selected.map((text, i) => ({
     id: `fallback-${Date.now()}-${i}`,
-    text,
+    text: adaptWishLength(text, length, language),
     provider: 'fallback',
   }));
+}
+
+/**
+ * Format wish according to requested length:
+ * - short: 1 crisp sentence (10-18 words)
+ * - medium: 2-3 sentences (35-50 words)
+ * - long: 5-7 sentences (85-120 words) with deep poetic blessings
+ */
+function adaptWishLength(text, length, language) {
+  if (length === 'short') {
+    // Check if wish has a dash or semicolon
+    let shortText = text.split(/[—;]/)[0].trim();
+    // If still long, take first sentence
+    shortText = shortText.split(/[.!?।]\s+/)[0].trim();
+    if (!shortText.endsWith('!') && !shortText.endsWith('।') && !shortText.endsWith('.')) {
+      shortText += '!';
+    }
+    return `${shortText} 🪔✨`;
+  }
+
+  if (length === 'long') {
+    if (language === 'hindi') {
+      return `दीपों की पावन ज्योति आपके जीवन के समस्त अंधकारों को मिटा दे। रंगोली के सुंदर रंगों की भाँति आपका हर दिन खुशियों और नई उम्मीदों से महकता रहे। ${text} माँ लक्ष्मी और विघ्नहर्ता भगवान श्री गणेश जी की असीम अनुकंपा आपके पूरे परिवार पर सदैव बनी रहे। धन, धान्य, उत्तम स्वास्थ्य और दीर्घायु की मंगलकामनाओं के साथ — सपरिवार दीपावली की हार्दिक शुभकामनाएँ! 🪷🪔🎆`;
+    }
+    if (language === 'hinglish') {
+      return `Diwali ki ye glittering night aapki life mein endless happiness aur positivity lekar aaye! Har diya jo jale, wo aapke saare stress aur worries ko hamesha ke liye door kar de. ${text} Wishing you and your entire family unbounded laughter, sweet memories, delicious sweets, aur Maa Lakshmi ka endless aashirwaad. Have a truly wonderful and safe Diwali celebration! 🪔🎆✨`;
+    }
+    return `As thousands of golden diyas illuminate the night and sacred chants echo with devotion, may the divine light guide your footsteps toward boundless success. ${text} May your days be adorned with good health, your nights with tranquility, and your heart with the eternal warmth of those you love. May Goddess Lakshmi bestow spiritual wisdom and worldly abundance upon your household throughout the coming year. Shubh Deepawali! 🪷🪔✨`;
+  }
+
+  // Medium (standard default)
+  return text;
 }
 
 /**

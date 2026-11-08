@@ -32,9 +32,9 @@ NAME: ${nameClause}
 FORMATTING RULES:
 - Number each wish clearly: 1. 2. 3. etc.
 - Each wish must be on its own line(s), separated by a blank line from the next.
-- Include relevant festival emojis naturally (🪔 diyas, 🎆 fireworks, 🪷 lotus, ✨ sparkles, 🎇 sparkler) — do NOT force them, place them where they feel organic.
-- Do NOT use generic openers like "Wishing you…" or "May this Diwali…" for every wish — vary the openings creatively.
-- Each wish must feel distinct — no repetition of ideas, metaphors, or phrasing.
+- Include relevant festival emojis naturally (🪔 diyas, 🎆 fireworks, 🪷 lotus, ✨ sparkles, 🎇 sparkler).
+- Do NOT use generic openers like "Wishing you…" for every wish.
+- CRITICAL LENGTH ENFORCEMENT: If LENGTH is SHORT, keep each wish to exactly 1 sentence. If LENGTH is LONG, write a comprehensive, rich paragraph of 5+ sentences with deep substance. Do not make all sizes look the same.
 
 QUALITY STANDARDS:
 - Authentic to Indian festival spirit and cultural warmth.
@@ -98,11 +98,11 @@ function getLanguageDescription(language) {
 function getLengthDescription(length) {
   const map = {
     short:
-      'Short — 1 to 2 sentences. Punchy and memorable.',
+      'STRICTLY SHORT: Exactly 1 single punchy sentence (maximum 12 to 20 words). Very brief, crisp, and direct. Do NOT write multiple sentences.',
     medium:
-      'Medium — 3 to 4 sentences. Balanced and complete.',
+      'MEDIUM: Exactly 2 to 3 well-balanced sentences (35 to 55 words). Warm, conversational, and complete.',
     long:
-      'Long — 4 to 6 sentences. Rich with imagery, deeper meaning, and heartfelt expression.',
+      'STRICTLY LONG & ELABORATE: An extensive, detailed paragraph of 5 to 7 full sentences (minimum 90 to 140 words). Rich with evocative imagery of clay diyas, fragrant marigolds, festive rangolis, and profound blessings for lifelong health, wealth, and inner peace.',
   };
   return map[length] || length;
 }

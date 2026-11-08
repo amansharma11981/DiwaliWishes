@@ -126,6 +126,26 @@ export default function AIGenerator() {
     setForm(f => ({ ...f, [field]: value }))
   }
 
+  const adaptLength = (rawText, len, lang) => {
+    if (len === 'short') {
+      let shortText = rawText.split(/[—;]/)[0].trim().split(/[.!?।]\s+/)[0].trim()
+      if (!shortText.endsWith('!') && !shortText.endsWith('।') && !shortText.endsWith('.')) {
+        shortText += '!'
+      }
+      return `${shortText} 🪔✨`
+    }
+    if (len === 'long') {
+      if (lang === 'hindi') {
+        return `दीपों की पावन ज्योति आपके जीवन के समस्त अंधकारों को मिटा दे। रंगोली के रंगों की भाँति आपका हर दिन खुशियों से महकता रहे। ${rawText} माँ लक्ष्मी और विघ्नहर्ता भगवान श्री गणेश जी की असीम अनुकंपा आपके पूरे परिवार पर सदैव बनी रहे। सपरिवार दीपावली की हार्दिक शुभकामनाएँ! 🪷🪔🎆`
+      }
+      if (lang === 'hinglish') {
+        return `Diwali ki ye glittering night aapki life mein endless happiness lekar aaye! Har diya jo jale, wo aapke saare stress ko hamesha ke liye door kar de. ${rawText} Wishing you and your entire family unbounded laughter, delicious sweets, aur Maa Lakshmi ka endless aashirwaad. Have a truly wonderful and safe Diwali! 🪔🎆✨`
+      }
+      return `As thousands of golden diyas illuminate the night and sacred chants echo with devotion, may the divine light guide your footsteps toward boundless success. ${rawText} May your days be adorned with good health, your nights with tranquility, and your heart with the eternal warmth of those you love. May Goddess Lakshmi bestow spiritual wisdom and worldly abundance upon your household. Shubh Deepawali! 🪷🪔✨`
+    }
+    return rawText
+  }
+
   const getFallbackWishes = useCallback(() => {
     // Pick from gallery wishes matching the category
     const matches = galleryWishes.filter(w =>
@@ -134,7 +154,11 @@ export default function AIGenerator() {
     )
     const pool = matches.length >= form.count ? matches : galleryWishes.filter(w => w.language === form.language || w.language === 'english')
     const shuffled = [...pool].sort(() => Math.random() - 0.5)
-    return shuffled.slice(0, form.count).map(w => ({ id: w.id, text: w.text, provider: 'curated' }))
+    return shuffled.slice(0, form.count).map(w => ({
+      id: `${w.id}-${form.length}-${Date.now()}`,
+      text: adaptLength(w.text, form.length, form.language),
+      provider: 'curated'
+    }))
   }, [form])
 
   const generate = useCallback(async () => {
